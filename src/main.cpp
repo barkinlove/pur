@@ -30,10 +30,12 @@ int main(int argc, char *args[]) {
   SDL_UpdateWindowSurface(pWindow);
   SDL_Event e;
   bool quit = false;
-  while (quit) {
+  while (!quit) {
     while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_QUIT)
+      if (e.type == SDL_QUIT) {
         quit = true;
+        std::cout << "HERE, SO fast?\n";
+      }
     }
   }
   SDL_DestroyWindow(pWindow);
