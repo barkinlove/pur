@@ -6,39 +6,67 @@
 #include <cstdlib>
 #include <iostream>
 
-constexpr int g_screenWidth = 640;
-constexpr int g_screenHeight = 480;
+constexpr std::uint32_t g_screenWidth = 640;
+constexpr std::uint32_t g_screenHeight = 480;
 
-int main(int argc, char *args[]) {
-  SDL_Window *pWindow = nullptr;
-  SDL_Surface *pSurface = nullptr;
-  if (SDL_Init(SDL_INIT_VIDEO)) {
+SDL_Window* g_pWindow = nullptr;
+SDL_Surface* g_pSurface = nullptr;
+SDL_Surface* g_pPicture = nullptr;
+std::string g_path = "assets/hello_world.bmp";
+
+bool init() {
+  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cout << "SLD cound not initialize! SDL_ERROR: " << SDL_GetError()
               << '\n';
-    return EXIT_FAILURE;
+    return false;
   }
-  pWindow = SDL_CreateWindow("tutorial", SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED, g_screenWidth,
-                             g_screenHeight, SDL_WINDOW_SHOWN);
-  if (!pWindow) {
+  g_pWindow = SDL_CreateWindow("tutorial", SDL_WINDOWPOS_UNDEFINED,
+                               SDL_WINDOWPOS_UNDEFINED, g_screenWidth,
+                               g_screenHeight, SDL_WINDOW_SHOWN);
+  if (!g_pWindow) {
     std::cout << "Window cound not be created!\n";
     return EXIT_FAILURE;
+    g_pSurface = SDL_GetWindowSurface(g_pWindow);
   }
+  return true;
+}
 
-  pSurface = SDL_GetWindowSurface(pWindow);
-  SDL_FillRect(pSurface, nullptr, SDL_MapRGB(pSurface->format, 0xff, 0xff, 0xff));
-  SDL_UpdateWindowSurface(pWindow);
+bool loadMedia(std::string path) {
+  g_pPicture = SDL_LoadBMP(path.c_str());
+  if (!g_pPicture) {
+    std::cout << "Unable to load an image! SDL Error: " << SDL_GetError() << '\n';
+    std::cout << "Image file: " << path << '\n';
+    return false;
+  }
+  return true;
+}
+
+void close() {
+  SDL_FreeSurface(g_pPicture);
+  g_pPicture = nullptr;
+  SDL_DestroyWindow(g_pWindow);
+  g_pWindow = nullptr;
+  SDL_Quit();
+}
+
+int main(int argc, char *args[]) {
+  if (!init()) {
+    return EXIT_FAILURE;
+  }
+  if (!loadMedia(g_path)) {
+    return EXIT_FAILURE;
+  }
+  SDL_BlitSurface(g_pPicture, nullptr, g_pSurface, nullptr);
+  SDL_UpdateWindowSurface(g_pWindow);
   SDL_Event e;
   bool quit = false;
   while (!quit) {
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_QUIT) {
         quit = true;
-        std::cout << "HERE, SO fast?\n";
       }
     }
   }
-  SDL_DestroyWindow(pWindow);
-  SDL_Quit();
+  close();
   return EXIT_SUCCESS;
 }
