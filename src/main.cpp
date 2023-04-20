@@ -1,72 +1,47 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_surface.h>
-#include <SDL2/SDL_video.h>
+#include <SFML/Graphics/CircleShape.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Window/Window.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include <iostream>
 
-constexpr std::uint32_t g_screenWidth = 640;
-constexpr std::uint32_t g_screenHeight = 480;
+struct Color {
+  static const sf::Color CarrotOrange;
+  static const sf::Color SeaColor;
+  static const sf::Color SandColor;
+};
 
-SDL_Window* g_pWindow = nullptr;
-SDL_Surface* g_pSurface = nullptr;
-SDL_Surface* g_pPicture = nullptr;
-std::string g_path = "assets/hello_world.bmp";
-
-bool init() {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-    std::cout << "SLD cound not initialize! SDL_ERROR: " << SDL_GetError()
-              << '\n';
-    return false;
-  }
-  g_pWindow = SDL_CreateWindow("tutorial", SDL_WINDOWPOS_UNDEFINED,
-                               SDL_WINDOWPOS_UNDEFINED, g_screenWidth,
-                               g_screenHeight, SDL_WINDOW_SHOWN);
-  if (!g_pWindow) {
-    std::cout << "Window cound not be created!\n";
-    return EXIT_FAILURE;
-  }
-  g_pSurface = SDL_GetWindowSurface(g_pWindow);
-  return true;
-}
-
-bool loadMedia(std::string path) {
-  g_pPicture = SDL_LoadBMP(path.c_str());
-  if (!g_pPicture) {
-    std::cout << "Unable to load an image! SDL Error: " << SDL_GetError() << '\n';
-    std::cout << "Image file: " << path << '\n';
-    return false;
-  }
-  return true;
-}
-
-void close() {
-  SDL_FreeSurface(g_pPicture);
-  g_pPicture = nullptr;
-  SDL_DestroyWindow(g_pWindow);
-  g_pWindow = nullptr;
-  SDL_Quit();
-}
+const sf::Color Color::CarrotOrange{237, 145, 33, 255};
+const sf::Color Color::SeaColor{54, 186, 179, 255};
+const sf::Color Color::SandColor{194, 178, 128, 255};
 
 int main(int argc, char *args[]) {
-  if (!init()) {
-    return EXIT_FAILURE;
-  }
-  if (!loadMedia(g_path)) {
-    return EXIT_FAILURE;
-  }
-  SDL_BlitSurface(g_pPicture, nullptr, g_pSurface, nullptr);
-  SDL_UpdateWindowSurface(g_pWindow);
-  SDL_Event e;
-  bool quit = false;
-  while (!quit) {
-    while (SDL_PollEvent(&e)) {
-      if (e.type == SDL_QUIT) {
-        quit = true;
+  sf::RenderWindow window(sf::VideoMode(800, 800), "My Window");
+  sf::CircleShape evader{10.f}, pursuer{2.f};
+  sf::RectangleShape target{sf::Vector2f{100, 50}};
+  evader.setFillColor(Color::SeaColor);
+  pursuer.setFillColor(Color::CarrotOrange);
+  target.setFillColor(Color::SandColor);
+  evader.setPosition(100.f, 100.f);
+  pursuer.setPosition(200.f, 300.f);
+  target.setPosition(window.getSize().x - 200, 200);
+  sf::Event e;
+  while (window.isOpen()) {
+    while (window.pollEvent(e)) {
+      if (e.type == sf::Event::Closed) {
+        window.close();
+        return EXIT_SUCCESS;
       }
     }
+    window.clear(sf::Color::Black);
+    evader.setPosition(evader.getPosition().x + 0.01f, evader.getPosition().y);
+    pursuer.setPosition(evader.getPosition().x - 0.01f, pursuer.getPosition().y + 0.01f);
+    window.draw(evader);
+    window.draw(pursuer);
+    window.draw(target);
+    window.display();
   }
-  close();
   return EXIT_SUCCESS;
 }
