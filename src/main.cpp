@@ -26,8 +26,8 @@ bool init() {
   if (!g_pWindow) {
     std::cout << "Window cound not be created!\n";
     return EXIT_FAILURE;
-    g_pSurface = SDL_GetWindowSurface(g_pWindow);
   }
+  g_pSurface = SDL_GetWindowSurface(g_pWindow);
   return true;
 }
 
