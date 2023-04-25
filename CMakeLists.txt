@@ -14,6 +14,6 @@ find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
+target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/x64-windows/include")
+
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-system sfml-network sfml-graphics sfml-window)
-
-
