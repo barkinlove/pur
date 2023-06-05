@@ -12,7 +12,13 @@ project(${PROJECT_NAME})
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
 
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/src/main.cpp)
+add_executable(${PROJECT_NAME} 
+  ${PROJECT_SOURCE_DIR}/src/main.cpp
+  ${PROJECT_SOURCE_DIR}/src/Target.cpp
+  ${PROJECT_SOURCE_DIR}/src/Actor.cpp
+  ${PROJECT_SOURCE_DIR}/src/Color.cpp
+  ${PROJECT_SOURCE_DIR}/src/Window.cpp
+  )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/x64-windows/include")
 
