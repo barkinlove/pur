@@ -23,6 +23,13 @@ public:
     m_window.draw(obj.getShape());
   }
 
+  template<typename T>
+  void drawTrajectory(T obj, sf::Vector2f origin, sf::Vector2f end, std::function<float(float x, sf::Vector2f, sf::Vector2f)> strategy) {
+      for (const auto& traj : obj.getTrajectory(origin, end, strategy)) {
+          m_window.draw(traj);
+      }
+  }
+
   void display();
 
 private:

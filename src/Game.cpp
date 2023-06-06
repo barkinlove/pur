@@ -17,7 +17,7 @@ Game::Game()
     m_window.getSize().y - static_cast<float>(m_window.getSize().y) / 2 - 25.f;
   m_target.setPos(target_x, target_y);
   m_evader.setPos(target_x - 300.f, target_y + 25.f);
-  m_pursuer.setPos(target_x + 100.f, target_y + 100.f);
+  m_pursuer.setPos(target_x + 100.f, target_y + 150.f);
 }
 
 sf::Vector2f Game::getNearestPath() const
@@ -42,7 +42,7 @@ sf::Vector2f Game::getNearestPath() const
   return dest;
 }
 
-const float Game::s_speed = 0.01f;
+const float Game::s_speed = 0.05f;
 
 float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
 {
@@ -71,14 +71,23 @@ void Game::run()
     float xcord = pCurrentPosition.x < eCurrentPosition.x
                     ? pCurrentPosition.x + s_speed
                     : pCurrentPosition.x - s_speed;
-    if (getDistance(m_pursuer.getPos(), m_evader.getPos()) < getDistance(m_evader.getPos(), dest)) {
-      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition));
+
+    if (pCurrentPosition.x < eCurrentPosition.x) {
+        m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition));
+        m_window.drawTrajectory(m_pursuer, pCurrentPosition, eCurrentPosition, move);
     }
-    else {
-      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
+    else
+    {
+        m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
+        m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
     }
 
+   
+    Actor dest_area{ 5.f, sf::Color::White };
+    dest_area.setPos(optimal_dest.x, optimal_dest.y);
+    m_window.draw(dest_area);
     m_window.draw(m_evader);
+    m_window.drawTrajectory(m_evader, eCurrentPosition, dest, move);
     m_window.draw(m_pursuer);
     m_window.draw(m_target);
     m_window.display();
