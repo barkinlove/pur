@@ -26,8 +26,7 @@ private:
 
 private:
   Window m_window;
-  Actor m_evader, m_pursuer;
-  Target m_target;
+  Actor m_evader, m_pursuer, m_target;
   sf::Event m_event;
   const Config m_config;
   static const float m_speed;
