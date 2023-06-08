@@ -1,12 +1,15 @@
 #pragma once
-#include "Window.hpp"
 #include "Actor.hpp"
+#include "Config.hpp"
 #include "Target.hpp"
+#include "Window.hpp"
 #include <SFML/Window/Event.hpp>
 
-class Game {
+class Game
+{
 public:
-  static Game& instance() {
+  static Game& instance()
+  {
     static Game s_game;
     return s_game;
   }
@@ -14,7 +17,7 @@ public:
   Game& operator=(const Game&) = delete;
 
   void run();
-  sf::Vector2f getNearestPath() const; 
+  sf::Vector2f getNearestPath() const;
   float getDistance(sf::Vector2f origin, sf::Vector2f end);
 
 private:
@@ -26,6 +29,6 @@ private:
   Actor m_evader, m_pursuer;
   Target m_target;
   sf::Event m_event;
-
-  static const float s_speed;
+  const Config m_config;
+  static const float m_speed;
 };

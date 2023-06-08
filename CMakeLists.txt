@@ -7,10 +7,16 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/external/vcpkg/scripts/buildsystem
       CACHE STRING "")
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
+set(CONFIG_FILE "config.json")
 
 project(${PROJECT_NAME})
 
 find_package(SFML COMPONENTS system window graphics CONFIG REQUIRED)
+
+if (NOT EXISTS "${PROJECT_SOURCE_DIR}/build/${CONFIG_FILE}")
+  file(WRITE "build/${CONFIG_FILE}" "{}")
+endif()
+
 
 add_executable(${PROJECT_NAME} 
   ${PROJECT_SOURCE_DIR}/src/main.cpp
@@ -19,6 +25,7 @@ add_executable(${PROJECT_NAME}
   ${PROJECT_SOURCE_DIR}/src/Color.cpp
   ${PROJECT_SOURCE_DIR}/src/Window.cpp
   ${PROJECT_SOURCE_DIR}/src/Game.cpp
+  ${PROJECT_SOURCE_DIR}/src/Config.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/x64-windows/include")

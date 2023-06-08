@@ -4,12 +4,14 @@
 #include <cmath>
 #include <cstdint>
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 Game::Game()
-  : m_window(sf::VideoMode(1200, 1000), "Pursuit game")
-  , m_evader(10.f, Color::SeaColor)
-  , m_pursuer(8.f, Color::CarrotOrange)
-  , m_target(sf::Vector2f{ 100.f, 50.f }, Color::SandColor)
+  : m_window{ sf::VideoMode(1200, 1000), "Pursuit game" }
+  , m_evader{ 10.f, Color::SeaColor }
+  , m_pursuer{ 8.f, Color::CarrotOrange }
+  , m_target{ sf::Vector2f{ 100.f, 50.f }, Color::SandColor }
+  , m_config{ "config.json" }
 {
   float target_x =
     m_window.getSize().x - static_cast<float>(m_window.getSize().x) / 2 - 50.f;
@@ -42,8 +44,6 @@ sf::Vector2f Game::getNearestPath() const
   return dest;
 }
 
-const float Game::s_speed = 0.05f;
-
 float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
 {
   sf::Vector2f distance = end - origin;
@@ -64,25 +64,24 @@ void Game::run()
   sf::Vector2f optimal_dest = sf::Vector2f{ new_x, new_y };
   m_window.loop([this, move, dest, optimal_dest]() {
     sf::Vector2f eCurrentPosition = m_evader.getPos();
-    m_evader.setPos(eCurrentPosition.x + s_speed,
-                    move(eCurrentPosition.x + s_speed, eCurrentPosition, dest));
+    m_evader.setPos(
+      eCurrentPosition.x + m_config.speed,
+      move(eCurrentPosition.x + m_config.speed, eCurrentPosition, dest));
 
     sf::Vector2f pCurrentPosition = m_pursuer.getPos();
     float xcord = pCurrentPosition.x < eCurrentPosition.x
-                    ? pCurrentPosition.x + s_speed
-                    : pCurrentPosition.x - s_speed;
+                    ? pCurrentPosition.x + m_config.speed
+                    : pCurrentPosition.x - m_config.speed;
 
     if (pCurrentPosition.x < eCurrentPosition.x) {
-        m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition));
-        m_window.drawTrajectory(m_pursuer, pCurrentPosition, eCurrentPosition, move);
-    }
-    else
-    {
-        m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
-        m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
+      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition));
+      m_window.drawTrajectory(
+        m_pursuer, pCurrentPosition, eCurrentPosition, move);
+    } else {
+      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
+      m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
     }
 
-   
     Actor dest_area{ 5.f, sf::Color::White };
     dest_area.setPos(optimal_dest.x, optimal_dest.y);
     m_window.draw(dest_area);
