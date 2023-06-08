@@ -1,1 +1,2 @@
-Extremely simple implementation of positional differential game. University project.
+# Description 
+Extremely simple implementation of a positional differential game. University project.
