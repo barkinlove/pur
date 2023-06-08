@@ -5,7 +5,6 @@
 #include "Target.hpp"
 #include "Window.hpp"
 #include <SFML/Window/Event.hpp>
-#include <random>
 
 class Game
 {
