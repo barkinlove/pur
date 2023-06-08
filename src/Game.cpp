@@ -14,7 +14,6 @@ Game::Game()
   , m_pursuer{ 8.f, Color::CarrotOrange }
   , m_target{ 60.f, Color::SandColor }
   , m_config{ "config.json" }
-  , m_randomizer{}
 {
   init();
 }
