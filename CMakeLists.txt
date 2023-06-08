@@ -26,6 +26,7 @@ add_executable(${PROJECT_NAME}
   ${PROJECT_SOURCE_DIR}/src/Window.cpp
   ${PROJECT_SOURCE_DIR}/src/Game.cpp
   ${PROJECT_SOURCE_DIR}/src/Config.cpp
+  ${PROJECT_SOURCE_DIR}/src/CollisionSystem.cpp
   )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_SOURCE_DIR}/build/vcpkg_installed/x64-windows/include")

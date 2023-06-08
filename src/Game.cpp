@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "CollisionSystem.hpp"
 #include "Color.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
@@ -16,7 +17,7 @@ Game::Game()
   float target_x =
     m_window.getSize().x - static_cast<float>(m_window.getSize().x) / 2 - 60.f;
   float target_y =
-    m_window.getSize().y - static_cast<float>(m_window.getSize().y) / 2  - 60.f;
+    m_window.getSize().y - static_cast<float>(m_window.getSize().y) / 2 - 60.f;
   m_target.setPos(target_x, target_y);
   m_evader.setPos(target_x - 300.f, target_y + 25.f);
   m_pursuer.setPos(target_x + 100.f, target_y + 150.f);
@@ -24,7 +25,7 @@ Game::Game()
 
 sf::Vector2f Game::getNearestPath() const
 {
-  return sf::Vector2f{m_target.getPos().x, m_target.getPos().y + 60.f};
+  return sf::Vector2f{ m_target.getPos().x, m_target.getPos().y + 60.f };
 }
 
 float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
@@ -44,6 +45,9 @@ void Game::run()
   sf::Vector2f dest = getNearestPath();
 
   m_window.loop([this, move, dest]() {
+    if (CollisionSystem::collide(m_evader, m_pursuer) || CollisionSystem::collide(m_evader, m_target)) {
+      return;
+    }
     sf::Vector2f eCurrentPosition = m_evader.getPos();
     m_evader.setPos(
       eCurrentPosition.x + m_config.speed,
