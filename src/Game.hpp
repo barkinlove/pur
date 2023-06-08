@@ -1,9 +1,11 @@
 #pragma once
 #include "Actor.hpp"
 #include "Config.hpp"
+#include "Randomizer.hpp"
 #include "Target.hpp"
 #include "Window.hpp"
 #include <SFML/Window/Event.hpp>
+#include <random>
 
 class Game
 {
@@ -23,11 +25,15 @@ public:
 private:
   Game();
   ~Game();
+  void init();
+  void initTarget();
+  void initActors();
+  void initRandomizer();
 
 private:
   Window m_window;
   Actor m_evader, m_pursuer, m_target;
   sf::Event m_event;
   const Config m_config;
-  static const float m_speed;
+  Randomizer m_randomizer;
 };

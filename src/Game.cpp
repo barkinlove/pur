@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "CollisionSystem.hpp"
 #include "Color.hpp"
+#include "Randomizer.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <cmath>
 #include <cstdint>
@@ -13,14 +14,49 @@ Game::Game()
   , m_pursuer{ 8.f, Color::CarrotOrange }
   , m_target{ 60.f, Color::SandColor }
   , m_config{ "config.json" }
+  , m_randomizer{}
 {
+  init();
+}
+
+void Game::init()
+{
+  initTarget();
+  initRandomizer();
+  initActors();
+}
+
+void Game::initTarget()
+{
+  std::cout << m_window.getSize().x << ' ' << m_window.getSize().y << '\n';
   float target_x =
     m_window.getSize().x - static_cast<float>(m_window.getSize().x) / 2 - 60.f;
   float target_y =
     m_window.getSize().y - static_cast<float>(m_window.getSize().y) / 2 - 60.f;
   m_target.setPos(target_x, target_y);
-  m_evader.setPos(target_x - 300.f, target_y + 25.f);
-  m_pursuer.setPos(target_x + 100.f, target_y + 150.f);
+  std::cout << "Target has been initialized.\n";
+}
+
+void Game::initActors()
+{
+  sf::Vector2f evaderOrigin = m_randomizer.get();
+  sf::Vector2f pursuerOrigin = m_randomizer.get();
+  std::cout << evaderOrigin.x << ' ' << evaderOrigin.y << '\n';
+  std::cout << pursuerOrigin.x << ' ' << pursuerOrigin.y << '\n';
+  m_evader.setPos(evaderOrigin.x, evaderOrigin.y);
+  m_pursuer.setPos(pursuerOrigin.x, pursuerOrigin.y);
+  std::cout << "Actors have been initalized.\n";
+}
+
+void Game::initRandomizer()
+{
+  m_randomizer.setBounds(0, m_window.getSize().x - 400.f, 0, m_window.getSize().y - 200.f);
+  float offset = 50.f;
+  m_randomizer.setExcludeZone(
+    { m_target.getPos().x - offset, m_target.getPos().y - offset },
+    { m_target.getPos().x + 2 * m_target.getShape().getRadius() + offset,
+      m_target.getPos().y + 2 * m_target.getShape().getRadius() + offset });
+  std::cout << "Randomizer has been initialized.\n";
 }
 
 sf::Vector2f Game::getNearestPath() const
@@ -35,10 +71,17 @@ float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
 }
 
 namespace {
-  bool almostEqual(sf::Vector2f first, sf::Vector2f second) {
-    float eps = 0.1f;
-    return std::abs(first.x - second.x) <= eps || std::abs(first.y - second.y) < eps;
-  }
+bool almostEqual(sf::Vector2f first, sf::Vector2f second)
+{
+  float eps = 0.1f;
+  return std::abs(first.x - second.x) <= eps ||
+         std::abs(first.y - second.y) < eps;
+}
+
+float getSign(sf::Vector2f first, sf::Vector2f second)
+{
+  return first.x > second.x ? -1 : 1;
+}
 }
 
 void Game::run()
@@ -53,26 +96,27 @@ void Game::run()
 
   bool charge = false;
   m_window.loop([this, move, dest, charge]() mutable {
-    if (CollisionSystem::collide(m_evader, m_pursuer) || CollisionSystem::collide(m_evader, m_target)) {
+    if (CollisionSystem::collide(m_evader, m_pursuer) ||
+        CollisionSystem::collide(m_evader, m_target)) {
       return;
     }
     sf::Vector2f eCurrentPosition = m_evader.getPos();
+    float xcord =
+      eCurrentPosition.x + getSign(eCurrentPosition, dest) * m_config.speed;
     m_evader.setPos(
-      eCurrentPosition.x + m_config.speed,
-      move(eCurrentPosition.x + m_config.speed, eCurrentPosition, dest));
+      xcord, move(xcord, eCurrentPosition, dest));
 
-    float new_x = (dest.x + m_evader.getPos().x) / 2;
-    float new_y = move(new_x, m_evader.getPos(), dest);
-    sf::Vector2f optimal_dest = sf::Vector2f{ new_x, new_y };
+    float newX = (dest.x + m_evader.getPos().x) / 2;
+    float newY = move(newX, m_evader.getPos(), dest);
+    sf::Vector2f optimal_dest = sf::Vector2f{ newX, newY };
 
     sf::Vector2f pCurrentPosition = m_pursuer.getPos();
-    float xcord = pCurrentPosition.x < eCurrentPosition.x
-                    ? pCurrentPosition.x + m_config.speed
-                    : pCurrentPosition.x - m_config.speed;
+    xcord = pCurrentPosition.x +
+            getSign(pCurrentPosition, eCurrentPosition) * m_config.speed;
 
     if (charge || almostEqual(m_pursuer.getPos(), optimal_dest)) {
       charge = true;
-      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition)); 
+      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition));
       m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
     } else {
       m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
