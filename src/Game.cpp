@@ -40,8 +40,6 @@ void Game::initActors()
 {
   sf::Vector2f evaderOrigin = m_randomizer.get();
   sf::Vector2f pursuerOrigin = m_randomizer.get();
-  std::cout << evaderOrigin.x << ' ' << evaderOrigin.y << '\n';
-  std::cout << pursuerOrigin.x << ' ' << pursuerOrigin.y << '\n';
   m_evader.setPos(evaderOrigin.x, evaderOrigin.y);
   m_pursuer.setPos(pursuerOrigin.x, pursuerOrigin.y);
   std::cout << "Actors have been initalized.\n";

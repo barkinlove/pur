@@ -49,7 +49,6 @@ sf::Vector2f Randomizer::get()
       point = {generateX(), generateY()};
       continue;
     }
-    std::cout << "All is good!\n";
     break;
   }
   return point;
