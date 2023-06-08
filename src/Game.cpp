@@ -34,6 +34,13 @@ float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
   return distance.x * distance.x + distance.y * distance.y;
 }
 
+namespace {
+  bool almostEqual(sf::Vector2f first, sf::Vector2f second) {
+    float eps = 0.1f;
+    return std::abs(first.x - second.x) <= eps || std::abs(first.y - second.y) < eps;
+  }
+}
+
 void Game::run()
 {
   auto move = [](float x, sf::Vector2f currentPosition, sf::Vector2f dest) {
@@ -44,7 +51,8 @@ void Game::run()
 
   sf::Vector2f dest = getNearestPath();
 
-  m_window.loop([this, move, dest]() {
+  bool charge = false;
+  m_window.loop([this, move, dest, charge]() mutable {
     if (CollisionSystem::collide(m_evader, m_pursuer) || CollisionSystem::collide(m_evader, m_target)) {
       return;
     }
@@ -62,8 +70,14 @@ void Game::run()
                     ? pCurrentPosition.x + m_config.speed
                     : pCurrentPosition.x - m_config.speed;
 
-    m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
-    m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
+    if (charge || almostEqual(m_pursuer.getPos(), optimal_dest)) {
+      charge = true;
+      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, eCurrentPosition)); 
+      m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
+    } else {
+      m_pursuer.setPos(xcord, move(xcord, pCurrentPosition, optimal_dest));
+      m_window.drawTrajectory(m_pursuer, pCurrentPosition, optimal_dest, move);
+    }
 
     Actor dest_area{ 5.f, sf::Color::White };
     dest_area.setPos(optimal_dest.x, optimal_dest.y - 2.5f);
