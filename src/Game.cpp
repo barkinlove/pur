@@ -27,7 +27,7 @@ void Game::init()
 
 void Game::initTarget()
 {
-  std::cout << m_window.getSize().x << ' ' << m_window.getSize().y << '\n';
+  std::cout << "Window width: " << m_window.getSize().x << ' ' << "; Window height: " << m_window.getSize().y << '\n';
   float target_x =
     m_window.getSize().x - static_cast<float>(m_window.getSize().x) / 2 - 60.f;
   float target_y =
