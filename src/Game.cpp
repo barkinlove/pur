@@ -108,8 +108,13 @@ void Game::run()
     sf::Vector2f optimal_dest = sf::Vector2f{ newX, newY };
 
     sf::Vector2f pCurrentPosition = m_pursuer.getPos();
-    xcord = pCurrentPosition.x +
-            getSign(pCurrentPosition, eCurrentPosition) * m_config.speed;
+    if (charge) {
+      xcord = pCurrentPosition.x +
+              getSign(pCurrentPosition, eCurrentPosition) * m_config.speed;
+    }
+    else {
+      xcord = pCurrentPosition.x + getSign(pCurrentPosition, optimal_dest) * m_config.speed;
+    }
 
     if (charge || almostEqual(m_pursuer.getPos(), optimal_dest)) {
       charge = true;
