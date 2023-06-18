@@ -58,7 +58,7 @@ void Game::initRandomizer()
 
 sf::Vector2f Game::getNearestPath() const
 {
-  return sf::Vector2f{ m_target.getPos().x, m_target.getPos().y + 60.f };
+  return sf::Vector2f{ m_target.getPos().x + 60.f, m_target.getPos().y + 60.f };
 }
 
 float Game::getDistance(sf::Vector2f origin, sf::Vector2f end)
